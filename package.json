@@ -1,0 +1,39 @@
+{
+  "name": "cointrunk-articles",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@bze/bzejs": "^1.8.4",
+    "@chain-registry/types": "^0.45.0",
+    "@cosmos-kit/core": "^2.15.0",
+    "@cosmos-kit/cosmostation": "^2.12.0",
+    "@cosmos-kit/keplr": "^2.12.0",
+    "@cosmos-kit/leap": "^2.12.0",
+    "@cosmos-kit/react-lite": "^2.12.0",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
+    "bignumber.js": "^9.1.2",
+    "chain-registry": "^1.63.0",
+    "framer-motion": "^11.15.0",
+    "long": "^4.0.0",
+    "lucide-react": "^0.468.0",
+    "next": "^14.2.21",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.5.0"
+  }
+}
