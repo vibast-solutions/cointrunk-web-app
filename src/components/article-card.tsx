@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ExternalLink, Hash, AlertTriangle } from 'lucide-react';
+import { ExternalLink, Hash } from 'lucide-react';
 import type { ArticleProps, PublisherProps } from '@/lib/types';
 import { getPublisherData } from '@/lib/services/publishers';
 import {
@@ -15,6 +15,7 @@ import {
 import {
   RespectBadge,
   PublishedTodayBadge,
+  PaidBadge,
   DomainBadge,
 } from './badges';
 
@@ -42,8 +43,26 @@ export function ArticleCard({ article, index }: Props) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.04 }}
-      className="group relative hover:bg-surface-card-hover/50 transition-colors"
+      className="group relative hover:bg-surface-card-hover/50 transition-colors overflow-hidden"
     >
+      {/* Paid article ribbon */}
+      {article.paid && (
+        <div className="absolute top-0 right-0 z-20 pointer-events-none" style={{ width: 120, height: 120 }}>
+          <div
+            className="absolute bg-amber-500 text-black text-[10px] font-bold uppercase tracking-wider leading-none flex items-center justify-center shadow-md"
+            style={{
+              width: 170,
+              height: 24,
+              top: 26,
+              right: -40,
+              transform: 'rotate(45deg)',
+            }}
+          >
+            Paid Article
+          </div>
+        </div>
+      )}
+
       {/* Full-card link overlay */}
       <a
         href={article.url}
@@ -83,14 +102,6 @@ export function ArticleCard({ article, index }: Props) {
               <span className="text-content-muted">{relativeTime}</span>
             </div>
 
-            {/* Paid article warning */}
-            {article.paid && (
-              <div className="mt-1.5 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
-                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>Paid article &mdash; not published by a trusted publisher</span>
-              </div>
-            )}
-
             {/* Article title */}
             <p className="mt-1.5 text-[15px] leading-relaxed text-content-primary group-hover:text-white transition-colors">
               {article.title}
@@ -113,6 +124,7 @@ export function ArticleCard({ article, index }: Props) {
               {domain && <DomainBadge domain={domain} />}
               {publisher && <RespectBadge respect={publisher.respect} />}
               {isToday && <PublishedTodayBadge />}
+              {article.paid && <PaidBadge />}
 
               <div className="flex items-center gap-1 ml-auto text-content-muted">
                 <Hash className="w-3 h-3" />

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@/components/providers';
-import { Navbar } from '@/components/navbar';
+import { AppShell } from '@/components/app-shell';
 
 export const metadata: Metadata = {
   title: 'CoinTrunk - Decentralized News on BeeZee',
@@ -21,8 +21,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="bg-surface-primary text-content-primary min-h-screen">
         <Providers>
-          <Navbar />
-          <main className="pt-14">{children}</main>
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

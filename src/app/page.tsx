@@ -8,7 +8,6 @@ import { ArticleCard } from '@/components/article-card';
 import { ArticleSkeleton } from '@/components/article-skeleton';
 import { FeedPagination } from '@/components/feed-pagination';
 import { AddArticleModal } from '@/components/add-article-modal';
-import { AboutBanner } from '@/components/about-banner';
 import { getAllArticles } from '@/lib/services/articles';
 import { isPublisher } from '@/lib/services/publishers';
 import { getChainName } from '@/lib/chain-config';
@@ -74,9 +73,6 @@ function ArticlesFeed() {
           </button>
         )}
       </div>
-
-      {/* About banner */}
-      <AboutBanner />
 
       {/* Feed content */}
       <div className="divide-y divide-surface-border/60">

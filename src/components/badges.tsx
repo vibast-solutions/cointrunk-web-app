@@ -35,9 +35,9 @@ export function PublishedTodayBadge() {
 
 export function PaidBadge() {
   return (
-    <span className={`${badgeBase} bg-purple-500/15 text-purple-400 border border-purple-500/20`}>
+    <span className={`${badgeBase} bg-amber-500/15 text-amber-400 border border-amber-500/20`}>
       <CreditCard className="w-3 h-3" />
-      Paid
+      Paid Article
     </span>
   );
 }
