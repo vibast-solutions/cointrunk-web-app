@@ -8,12 +8,13 @@ import {
   getChainName,
   getRpcUrl,
   getMinDenom,
+  getGasPrice,
   getExplorerTxUrl,
 } from '@/lib/chain-config';
 import { getCointrunkParams } from '@/lib/services/params';
 import { getAccountBalance } from '@/lib/services/account';
 import { bze, getSigningBzeClient } from '@bze/bzejs';
-import { coins } from '@cosmjs/stargate';
+import { calculateFee, GasPrice } from '@cosmjs/stargate';
 import type { PublisherProps } from '@/lib/types';
 
 interface Props {
@@ -77,23 +78,21 @@ export function PayRespectModal({ publisher, onClose, onSuccess }: Props) {
         [msg],
         undefined
       );
-      const fee = {
-        amount: coins(0, getMinDenom()),
-        gas: String(Math.round(gasEstimated * 1.3)),
-      };
+      const gasLimit = Math.round(gasEstimated * 1.3);
+      const fee = calculateFee(gasLimit, GasPrice.fromString(getGasPrice()));
 
       const result = await signingClient.signAndBroadcast(
         address,
         [msg],
         fee
       );
+      if (result.code !== 0) {
+        setError(result.rawLog || `Transaction failed with code ${result.code}`);
+        return;
+      }
       setTxHash(result.transactionHash);
       onSuccess();
     } catch (e: any) {
-      if (e.message?.includes('Length must be a multiple of 4')) {
-        onSuccess();
-        return;
-      }
       setError(e.message || 'Failed to pay respect.');
     } finally {
       setLoading(false);

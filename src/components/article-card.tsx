@@ -34,6 +34,8 @@ export function ArticleCard({ article, index }: Props) {
   const publisherName = publisher?.name || 'Anonymous';
   const avatarGradient = generateAvatarGradient(article.publisher);
   const domain = extractUrlHost(article.url);
+  const hasValidUrl = domain !== null;
+  const hasValidPicture = article.picture ? extractUrlHost(article.picture) !== null : false;
   const createdAt = new Date(Number(article.created_at) * 1000);
   const relativeTime = formatRelativeTime(createdAt);
   const isToday = Date.now() - createdAt.getTime() < 24 * 60 * 60 * 1000;
@@ -63,14 +65,16 @@ export function ArticleCard({ article, index }: Props) {
         </div>
       )}
 
-      {/* Full-card link overlay */}
-      <a
-        href={article.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="absolute inset-0 z-10"
-        aria-label={article.title}
-      />
+      {/* Full-card link overlay — only render if URL is valid http(s) */}
+      {hasValidUrl && (
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0 z-10"
+          aria-label={article.title}
+        />
+      )}
 
       <div className="px-4 py-4">
         <div className="flex gap-3">
@@ -107,8 +111,8 @@ export function ArticleCard({ article, index }: Props) {
               {article.title}
             </p>
 
-            {/* Article image */}
-            {article.picture && (
+            {/* Article image — only render if picture URL is valid http(s) */}
+            {hasValidPicture && (
               <div className="mt-3 rounded-2xl overflow-hidden border border-surface-border/60">
                 <img
                   src={article.picture}

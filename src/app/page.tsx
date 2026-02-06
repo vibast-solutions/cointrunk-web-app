@@ -8,6 +8,7 @@ import { ArticleCard } from '@/components/article-card';
 import { ArticleSkeleton } from '@/components/article-skeleton';
 import { FeedPagination } from '@/components/feed-pagination';
 import { AddArticleModal } from '@/components/add-article-modal';
+import { useToast } from '@/components/toast';
 import { getAllArticles } from '@/lib/services/articles';
 import { isPublisher } from '@/lib/services/publishers';
 import { getChainName } from '@/lib/chain-config';
@@ -21,12 +22,16 @@ function ArticlesFeed() {
   const chainName = getChainName();
   const { address, status } = useChain(chainName);
 
+  const { showToast } = useToast();
   const currentPage = Number(searchParams.get('page') || '1');
   const [articles, setArticles] = useState<ArticleProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasNext, setHasNext] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [userIsPublisher, setUserIsPublisher] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refreshArticles = () => setRefreshKey((k) => k + 1);
 
   useEffect(() => {
     setLoading(true);
@@ -38,7 +43,7 @@ function ArticlesFeed() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [currentPage]);
+  }, [currentPage, refreshKey]);
 
   useEffect(() => {
     if (address && status === 'Connected') {
@@ -110,7 +115,8 @@ function ArticlesFeed() {
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {
             setShowAddModal(false);
-            goToPage(1);
+            showToast('Your article has been published!');
+            setTimeout(refreshArticles, 1000);
           }}
         />
       )}

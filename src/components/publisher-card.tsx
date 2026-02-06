@@ -14,6 +14,7 @@ import {
 } from '@/lib/utils';
 import { RespectBadge, ActiveBadge, ArticleCountBadge } from './badges';
 import { PayRespectModal } from './pay-respect-modal';
+import { useToast } from './toast';
 
 interface Props {
   publisher: PublisherProps;
@@ -29,6 +30,7 @@ export function PublisherCard({
   const [showPayModal, setShowPayModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const { status, openView } = useChain(getChainName());
+  const { showToast } = useToast();
   const avatarGradient = generateAvatarGradient(publisher.address);
   const joinDate = new Date(Number(publisher.created_at) * 1000);
 
@@ -133,7 +135,10 @@ export function PublisherCard({
         <PayRespectModal
           publisher={publisher}
           onClose={() => setShowPayModal(false)}
-          onSuccess={() => setShowPayModal(false)}
+          onSuccess={() => {
+            setShowPayModal(false);
+            showToast('Respect paid successfully!');
+          }}
         />
       )}
     </>

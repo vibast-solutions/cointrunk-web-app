@@ -7,6 +7,7 @@ import { wallets as leapWallets } from '@cosmos-kit/leap';
 import { wallets as cosmostationWallets } from '@cosmos-kit/cosmostation';
 import { getChain, getAssets } from '@/lib/chain-config';
 import { WalletModal } from './wallet-modal';
+import { ToastProvider } from './toast';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -16,7 +17,7 @@ export function Providers({ children }: { children: ReactNode }) {
       wallets={[...keplrWallets, ...leapWallets, ...cosmostationWallets]}
       walletModal={WalletModal}
     >
-      {children}
+      <ToastProvider>{children}</ToastProvider>
     </ChainProvider>
   );
 }

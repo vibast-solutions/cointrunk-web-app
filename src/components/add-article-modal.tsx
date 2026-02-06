@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Send, AlertTriangle, Loader2 } from 'lucide-react';
 import { useChain } from '@cosmos-kit/react-lite';
-import { getChainName, getRpcUrl, getMinDenom } from '@/lib/chain-config';
+import { getChainName, getRpcUrl, getGasPrice } from '@/lib/chain-config';
 import {
   getAcceptedDomains,
   isAcceptedDomain,
@@ -12,7 +12,7 @@ import {
 } from '@/lib/services/accepted-domains';
 import { getCointrunkParams } from '@/lib/services/params';
 import { bze, getSigningBzeClient } from '@bze/bzejs';
-import { coins } from '@cosmjs/stargate';
+import { calculateFee, GasPrice } from '@cosmjs/stargate';
 import type { AcceptedDomainProps, CointrunkParamsProps } from '@/lib/types';
 
 interface Props {
@@ -94,19 +94,16 @@ export function AddArticleModal({ isPublisher, onClose, onSuccess }: Props) {
         [msg],
         undefined
       );
-      const fee = {
-        amount: coins(0, getMinDenom()),
-        gas: String(Math.round(gasEstimated * 1.3)),
-      };
+      const gasLimit = Math.round(gasEstimated * 1.3);
+      const fee = calculateFee(gasLimit, GasPrice.fromString(getGasPrice()));
 
-      await signingClient.signAndBroadcast(address, [msg], fee);
-      onSuccess();
-    } catch (e: any) {
-      // Handle known non-error case from old app
-      if (e.message?.includes('Length must be a multiple of 4')) {
-        onSuccess();
+      const result = await signingClient.signAndBroadcast(address, [msg], fee);
+      if (result.code !== 0) {
+        setError(result.rawLog || `Transaction failed with code ${result.code}`);
         return;
       }
+      onSuccess();
+    } catch (e: any) {
       setError(e.message || 'Failed to submit article.');
     } finally {
       setLoading(false);

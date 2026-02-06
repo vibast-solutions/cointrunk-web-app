@@ -65,6 +65,7 @@ const networks: Record<string, any> = {
     chainName: 'beezee',
     minDenom: 'ubze',
     displayDenom: 'BZE',
+    gasPrice: '0.01ubze',
     chain: chains,
     assets: assets,
   },
@@ -75,6 +76,7 @@ const networks: Record<string, any> = {
     chainName: BZE_TESTNET_CHAIN.chain_name,
     minDenom: TESTNET_COIN_MIN_DENOM,
     displayDenom: TESTNET_COIN_DENOM.toUpperCase(),
+    gasPrice: `0${TESTNET_COIN_MIN_DENOM}`,
     chain: [BZE_TESTNET_CHAIN],
     assets: [BZE_TESTNET_ASSETS],
   },
@@ -90,5 +92,6 @@ export const getMinDenom = (): string => config.minDenom;
 export const getDisplayDenom = (): string => config.displayDenom;
 export const getChain = (): any[] => config.chain;
 export const getAssets = (): any[] => config.assets;
+export const getGasPrice = (): string => config.gasPrice;
 export const getExplorerTxUrl = (txHash: string): string =>
   `${config.explorerBaseUrl}/tx/${txHash}`;
