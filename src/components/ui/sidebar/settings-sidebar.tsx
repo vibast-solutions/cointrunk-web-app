@@ -2,34 +2,26 @@
 
 import {
     VStack,
-    HStack,
     Text,
     Button,
     Separator,
     Box,
     Input,
-    Badge,
     createListCollection,
 } from '@chakra-ui/react'
 import { Select, Portal } from '@chakra-ui/react'
 import {useState, useEffect, useMemo, useCallback} from 'react'
 import { useSettings } from '@/hooks/useSettings'
 import {convertToWebSocketUrl, validateEndpoints} from '@/utils/validation'
-import {
-    CONNECTION_TYPE_NONE,
-    CONNECTION_TYPE_POLLING,
-    CONNECTION_TYPE_WS,
-    EndpointValidationResults
-} from '@/types/settings'
+import {EndpointValidationResults} from '@/types/settings'
 import {useToast} from "@/hooks/useToast";
-import {useConnectionType} from "@/hooks/useConnectionType";
+
 import {useFeeTokens} from "@/hooks/useFeeTokens";
 import {getChainNativeAssetDenom} from "@/constants/assets";
 
 export const SettingsSidebarContent = () => {
     const {toast} = useToast()
     const { settings, isLoaded, updateEndpoints, updatePreferredFeeDenom, defaultSettings } = useSettings()
-    const {connectionType} = useConnectionType()
     const { feeTokens, isLoading: feeTokensLoading } = useFeeTokens()
 
     // Local form state
@@ -105,28 +97,6 @@ export const SettingsSidebarContent = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const connectionStatusText = useMemo(() => {
-        switch(connectionType) {
-            case CONNECTION_TYPE_NONE:
-                return 'Failed'
-            case CONNECTION_TYPE_POLLING:
-                return 'Polling'
-            case CONNECTION_TYPE_WS:
-                return 'Connected'
-        }
-    }, [connectionType])
-
-    const connectionStatusBadgeColor = useMemo(() => {
-        switch(connectionType) {
-            case CONNECTION_TYPE_NONE:
-                return 'red'
-            case CONNECTION_TYPE_POLLING:
-                return 'orange'
-            case CONNECTION_TYPE_WS:
-                return 'green'
-        }
-    }, [connectionType])
-
     // Create fee tokens collection for select
     const feeTokensCollection = useMemo(() => createListCollection({
         items: feeTokens.map(token => ({
@@ -200,12 +170,6 @@ export const SettingsSidebarContent = () => {
                 </Text>
 
                 <VStack gap="4" align="stretch">
-                    <Box>
-                        <HStack gap="2" align="center" justify="space-between">
-                            <Text fontSize="sm" mb="1">Status: </Text>
-                            <Badge colorPalette={connectionStatusBadgeColor}>{connectionStatusText}</Badge>
-                        </HStack>
-                    </Box>
                     {/* REST Endpoint */}
                     <Box>
                         <Text fontSize="sm" mb="1">REST Endpoint</Text>

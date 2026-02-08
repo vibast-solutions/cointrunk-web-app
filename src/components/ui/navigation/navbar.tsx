@@ -1,37 +1,20 @@
 'use client';
 
-import {Box, Button, ClientOnly, HStack, IconButton, Skeleton, Text} from '@chakra-ui/react'
+import {Box, ClientOnly, HStack, IconButton, Skeleton, Text} from '@chakra-ui/react'
 import {NavbarLinks} from './navbar-links'
 import {LuWallet, LuSettings} from "react-icons/lu";
 import {Sidebar} from "@/components/ui/sidebar/sidebar";
 import {WalletSidebarContent} from "@/components/ui/sidebar/wallet-sidebar";
 import {SettingsSidebarContent} from "@/components/ui/sidebar/settings-sidebar";
 import {MobileNavbarLinks} from "@/components/ui/navigation/mobile-navbar-links";
-import {useAssets} from "@/hooks/useAssets";
-import {useBalance} from "@/hooks/useBalances";
 import {useChain} from "@interchain-kit/react";
 import {getChainName} from "@/constants/chain";
 import {WalletState} from "@interchain-kit/core";
-import {useMemo} from "react";
-import {shortNumberFormat} from "@/utils/formatter";
-import {uAmountToBigNumberAmount} from "@/utils/amount";
-import {getChainNativeAssetDenom} from "@/constants/assets";
 import NextLink from 'next/link';
 
 export const TopNavBar = () => {
-    const {nativeAsset} = useAssets()
-    const {balance} = useBalance(getChainNativeAssetDenom())
     const {status} = useChain(getChainName());
-
-    const walletButtonText = useMemo(() => {
-        if (status !== WalletState.Connected || !nativeAsset) {
-            return "";
-        }
-
-        const humanBalance = uAmountToBigNumberAmount(balance.amount, nativeAsset.decimals)
-
-        return `${shortNumberFormat(humanBalance)} ${nativeAsset.ticker}`
-    }, [status, nativeAsset, balance])
+    const isConnected = status === WalletState.Connected;
 
     return (
         <Box
@@ -77,20 +60,16 @@ export const TopNavBar = () => {
                         <Sidebar
                             ariaLabel="Wallet"
                             trigger={
-                                <Button
+                                <IconButton
+                                    aria-label="Wallet"
                                     size="sm"
-                                    bg="surface.elevated"
-                                    color="content.primary"
-                                    borderWidth="1px"
-                                    borderColor="surface.border"
+                                    variant="ghost"
+                                    color={isConnected ? 'green.400' : 'content.secondary'}
                                     borderRadius="lg"
-                                    _hover={{bg: 'surface.card'}}
-                                    fontWeight="medium"
-                                    fontSize="sm"
+                                    _hover={{color: isConnected ? 'green.300' : 'content.primary', bg: 'surface.cardHover'}}
                                 >
                                     <LuWallet />
-                                    <Text hideBelow="sm">{walletButtonText || 'Wallet'}</Text>
-                                </Button>
+                                </IconButton>
                             }
                         >
                             <WalletSidebarContent />

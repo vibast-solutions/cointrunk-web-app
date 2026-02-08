@@ -6,7 +6,6 @@ import {Provider} from "@/components/ui/provider";
 import {TopNavBar} from "@/components/ui/navigation/navbar";
 import {Toaster} from "@/components/ui/toaster";
 import {AssetsProvider} from "@/contexts/assets_context";
-import {BlockchainListenerWrapper} from "@/components/blockchain-listener-wrapper";
 import {GoogleTagManager} from "@next/third-parties/google";
 import {Box} from "@chakra-ui/react";
 
@@ -37,11 +36,10 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
               <meta name="twitter:title" content="CoinTrunk - Decentralized News on BeeZee" />
               <meta name="twitter:description" content="Browse and publish articles on the BeeZee blockchain. Decentralized, transparent, community-driven news." />
           </head>
-          <body style={{backgroundColor: '#0a0912'}}>
+          <body style={{backgroundColor: '#0a0912', overscrollBehavior: 'contain'}}>
             <GoogleTagManager gtmId="G-7DRJTECDTV"/>
             <Provider>
               <AssetsProvider>
-                  <BlockchainListenerWrapper />
                   <TopNavBar />
                   <Box pt="14">
                     {children}

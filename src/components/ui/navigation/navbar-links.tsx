@@ -70,7 +70,7 @@ export const NavbarLinks = ({ onLinkClick, ...props }: NavbarLinksProps) => {
                         }}
                     >
                         <Icon size={16} />
-                        <Text hideBelow="sm">{item.name}</Text>
+                        <Text>{item.name}</Text>
                     </Link>
                 )
             })}

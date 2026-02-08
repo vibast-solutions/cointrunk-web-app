@@ -22,8 +22,3 @@ export interface EndpointValidationResults {
     rpc?: ValidationResult
 }
 
-export const CONNECTION_TYPE_WS = 2;
-export const CONNECTION_TYPE_POLLING = 1;
-export const CONNECTION_TYPE_NONE = 0;
-
-export type ConnectionType = 0 | 1 | 2;
