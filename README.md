@@ -68,6 +68,8 @@ Docker image (Next.js standalone server, no secrets baked):
 docker build -f docker/prod/Dockerfile --build-arg FLAVOR=mainnet .
 ```
 
-CI builds both flavors on every push to `main-v2` and pushes them to GHCR
-(mainnet tag = commit short-SHA, testnet tag = `testnet-<sha>`); the
-production server auto-releases both stacks from that branch.
+CI publishes to GHCR per branch, monorepo-style: push to `main-v2`
+(default) builds the **mainnet** flavor (tag = commit short-SHA, deployed to
+app.cointrunk.io), push to `develop` builds the **testnet** flavor
+(tag = `testnet-<sha>`, deployed to testnet.cointrunk.io). The production
+server auto-releases each stack from its branch.

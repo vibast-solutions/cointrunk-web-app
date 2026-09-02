@@ -1,14 +1,13 @@
 name: docker-publish
 
-# Build BOTH flavors of the production image on every push to main-v2 (the
-# release branch) and push them to GHCR:
-#   mainnet -> tag <sha8>          (app.cointrunk.io)
-#   testnet -> tag testnet-<sha8>  (testnet.cointrunk.io)
-# One branch drives both deployments — the flavors differ only in the
-# .env.<flavor>.dist values inlined at build time (all public).
+# Build the production image and push it to GHCR — same model as the
+# bze-frontend-apps monorepo:
+#   push to main-v2 (default) -> mainnet flavor, tag <sha8>          (app.cointrunk.io)
+#   push to develop           -> testnet flavor, tag testnet-<sha8>  (testnet.cointrunk.io)
+# The flavor selects .env.<flavor>.dist, inlined at build time (all public).
 on:
   push:
-    branches: [main-v2]
+    branches: [main-v2, develop]
   workflow_dispatch:
 
 permissions:
@@ -23,23 +22,21 @@ concurrency:
 jobs:
   build-push:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        flavor: [mainnet, testnet]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compute image tag
+      - name: Compute tag and flavor
         id: vars
         # --short=8 pinned: the tag is always derivable from any commit
-        # listing. testnet builds get a prefix so the two flavors can never be
-        # confused inside one GHCR package.
+        # listing. develop builds get a testnet- prefix so the two flavors can
+        # never be confused inside one GHCR package.
         run: |
           sha=$(git rev-parse --short=8 HEAD)
-          if [ "${{ matrix.flavor }}" = "testnet" ]; then
+          if [ "${{ github.ref_name }}" = "develop" ]; then
+            echo "flavor=testnet" >> "$GITHUB_OUTPUT"
             echo "tag=testnet-$sha" >> "$GITHUB_OUTPUT"
           else
+            echo "flavor=mainnet" >> "$GITHUB_OUTPUT"
             echo "tag=$sha" >> "$GITHUB_OUTPUT"
           fi
 
@@ -57,7 +54,7 @@ jobs:
           file: docker/prod/Dockerfile
           push: true
           build-args: |
-            FLAVOR=${{ matrix.flavor }}
+            FLAVOR=${{ steps.vars.outputs.flavor }}
           tags: ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha
@@ -65,10 +62,9 @@ jobs:
       - name: Summary
         run: echo "Pushed ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
 
-      # mainnet only, so a merged PR gets ONE comment, not two. Runs after the
-      # push succeeded, so the comment doubles as the "image is ready" signal.
+      # Runs after the push succeeded, so the comment doubles as the
+      # "image is ready" signal. Direct pushes with no PR are skipped.
       - name: Comment release command on the merged PR
-        if: matrix.flavor == 'mainnet'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.vars.outputs.tag }}
@@ -76,11 +72,11 @@ jobs:
         run: |
           pr=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '.[0].number')
           if [ -n "$pr" ] && [ "$pr" != "null" ]; then
-            body="📦 Images published: \`ghcr.io/${{ github.repository }}:${TAG}\` (mainnet) and \`:testnet-${TAG}\` (testnet)
+            body="📦 Image published: \`ghcr.io/${{ github.repository }}:${TAG}\`
 
-          Both stacks auto-release from this branch; manual deploy on the server:
+          The matching stack auto-releases from this branch; manual deploy on the server:
           \`\`\`bash
-          ./release.sh ${TAG}
+          ./release.sh ${TAG#testnet-}
           \`\`\`"
             prev=$(echo "$BEFORE" | cut -c1-8)
             if [ -n "$prev" ] && [ "$prev" != "00000000" ]; then
