@@ -30,13 +30,12 @@ Web app for browsing and publishing CoinTrunk articles on BeeZee.
 npm install
 ```
 
-2. Create env file:
+2. Create env file (pick a flavor — the dist files carry the full public
+   config, nothing to fill in):
 
 ```bash
-cp .env.dist .env
+cp .env.mainnet.dist .env   # or .env.testnet.dist
 ```
-
-3. Fill required chain/API variables in `.env`.
 
 ## Development
 
@@ -60,3 +59,15 @@ npm run start
 - `src/app/publisher/[address]/page.tsx` - publisher profile
 - `src/query/` - chain/data access layer
 - `src/constants/` - chain/network configuration
+
+## Production
+
+Docker image (Next.js standalone server, no secrets baked):
+
+```bash
+docker build -f docker/prod/Dockerfile --build-arg FLAVOR=mainnet .
+```
+
+CI builds both flavors on every push to `main-v2` and pushes them to GHCR
+(mainnet tag = commit short-SHA, testnet tag = `testnet-<sha>`); the
+production server auto-releases both stacks from that branch.
