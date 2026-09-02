@@ -1,6 +1,6 @@
 'use client';
 
-import {Box, ClientOnly, HStack, IconButton, Skeleton, Text} from '@chakra-ui/react'
+import {Box, ClientOnly, HStack, IconButton, Image, Skeleton, Text} from '@chakra-ui/react'
 import {NavbarLinks} from './navbar-links'
 import {LuWallet, LuSettings} from "react-icons/lu";
 import {Sidebar} from "@/components/ui/sidebar/sidebar";
@@ -30,24 +30,25 @@ export const TopNavBar = () => {
         >
             <Box maxW="2xl" mx="auto" px="4" h="14" display="flex" alignItems="center" justifyContent="space-between">
                 {/* Logo */}
-                <HStack gap="2.5" as={NextLink} href="/" flexShrink={0}>
-                    <Box
-                        as="img"
-                        src="/cointrunk.svg"
-                        alt="CoinTrunk"
-                        h="7"
-                        w="7"
-                        transition="transform 0.2s"
-                        _hover={{transform: 'scale(1.1)'}}
-                    />
-                    <Text
-                        fontWeight="semibold"
-                        fontSize="lg"
-                        color="content.primary"
-                        hideBelow="sm"
-                    >
-                        CoinTrunk
-                    </Text>
+                <HStack gap="2.5" asChild flexShrink={0}>
+                    <NextLink href="/">
+                        <Image
+                            src="/cointrunk.svg"
+                            alt="CoinTrunk"
+                            h="7"
+                            w="7"
+                            transition="transform 0.2s"
+                            _hover={{transform: 'scale(1.1)'}}
+                        />
+                        <Text
+                            fontWeight="semibold"
+                            fontSize="lg"
+                            color="content.primary"
+                            hideBelow="sm"
+                        >
+                            CoinTrunk
+                        </Text>
+                    </NextLink>
                 </HStack>
 
                 {/* Nav links (desktop) */}
