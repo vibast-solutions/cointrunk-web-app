@@ -55,5 +55,5 @@ jobs:
           restore-keys: |
             nextjs-${{ hashFiles('package-lock.json') }}-
 
-      - name: Build (mainnet flavor)
-        run: cp .env.mainnet.dist .env && npm run build
+      - name: Build (dev template)
+        run: cp .env.dist .env && npm run build
