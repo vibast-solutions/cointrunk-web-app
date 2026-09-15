@@ -2,7 +2,8 @@
 .github
 node_modules
 .next
-.env
-.env.local
+.env*
+!.env.dist
+deploy
 docker
 README.md

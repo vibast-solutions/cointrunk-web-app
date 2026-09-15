@@ -30,11 +30,11 @@ Web app for browsing and publishing CoinTrunk articles on BeeZee.
 npm install
 ```
 
-2. Create env file (pick a flavor — the dist files carry the full public
-   config, nothing to fill in):
+2. Create the env file (the template carries the full public testnet config,
+   nothing to fill in):
 
 ```bash
-cp .env.mainnet.dist .env   # or .env.testnet.dist
+cp .env.dist .env
 ```
 
 ## Development
@@ -62,14 +62,19 @@ npm run start
 
 ## Production
 
-Docker image (Next.js standalone server, no secrets baked):
+Docker image (Next.js standalone server, no secrets baked; the build-time
+`NEXT_PUBLIC_*` values come in as a BuildKit secret, see the Dockerfile):
 
 ```bash
-docker build -f docker/prod/Dockerfile --build-arg FLAVOR=mainnet .
+docker build -f docker/prod/Dockerfile --secret id=build_env,src=.env.dist .
 ```
 
 CI publishes to GHCR per branch, monorepo-style: push to `main-v2`
 (default) builds the **mainnet** flavor (tag = commit short-SHA, deployed to
 app.cointrunk.io), push to `develop` builds the **testnet** flavor
-(tag = `testnet-<sha>`, deployed to testnet.cointrunk.io). The production
-server auto-releases each stack from its branch.
+(tag = `testnet-<sha>`, deployed to testnet.cointrunk.io). Each flavor's
+production env is the matching `build.env` in the private deploy repo
+(`vibast-solutions/vibast-deploy`), not a file in this repo. After the push,
+CI dispatches that repo's `deploy` workflow for the flavor's site and waits
+for it — merging to a release branch is deploying, and a failed release shows
+up as a red run here too.
