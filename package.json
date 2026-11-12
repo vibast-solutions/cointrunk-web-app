@@ -43,6 +43,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "protobufjs": "6.11.6"
   }
 }
