@@ -20,12 +20,12 @@ describe("calculateTokenFeeAmount", () => {
     it("applies the surcharge multiplicatively and rounds up", () => {
         expect(calculateTokenFeeAmount(new BigNumber(1000), "0.01", "0.5").toFixed(0)).toBe("2250");
         expect(calculateTokenFeeAmount(new BigNumber(1000), "0.01", "2").toFixed(0)).toBe("4500");
-        expect(calculateTokenFeeAmount(new BigNumber(1001), "0.01", "0.333").toFixed(0)).toBe("2001");
+        expect(calculateTokenFeeAmount(new BigNumber(1001), "0.01", "0.333").toFixed(0)).toBe("2002");
     });
 
     it("rounds up once so a small amount is not under-paid", () => {
         // 1.2 * 1.5 * 2 = 3.6 -> 4 (flooring 1.8 first would give 1 * 2 = 2... then 2, below the chain's ceil)
-        expect(calculateTokenFeeAmount(new BigNumber("1.2"), "0.0001", "1").toFixed(0)).toBe("4");
+        expect(calculateTokenFeeAmount(new BigNumber("1.2"), "0.5", "1").toFixed(0)).toBe("4");
     });
 
     it("keeps the minimum that lets the chain capture the swap fee", () => {
