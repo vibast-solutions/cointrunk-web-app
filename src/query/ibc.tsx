@@ -2,85 +2,21 @@
 
 import {getSettings} from "@/storage/settings";
 import {CounterpartyChainForChannel, DenomTrace} from "@/types/ibc";
+import {createHashTraceResolver} from "@/utils/ibc_trace";
 import {getFromLocalStorage, setInLocalStorage} from "@/storage/storage";
 
-const TRACES_CACHE_KEY = "ibc:traces";
-const TRACES_CACHE_TTL = 5 * 60;
-const HASH_TRACE_CACHE_TTL = 0; //never expire
 const IBC_COUNTERPARTY_CACHE_TTL = 0; //never expire
-const DEFAULT_LIMIT = 1000;
 
-const getDenomTracesUrl = (limit: number): string => {
-    const settings = getSettings()
+const hashTraceResolver = createHashTraceResolver({
+    fetch: (url) => fetch(url),
+    restEndpoint: () => getSettings().endpoints.restEndpoint,
+    cache: {
+        get: getFromLocalStorage,
+        set: (key, value, ttl) => { setInLocalStorage(key, value, ttl); },
+    },
+});
 
-    return `${settings.endpoints.restEndpoint}/ibc/apps/transfer/v1/denom_traces?pagination.limit=${limit}`;
-}
-
-const getHashDenomTracesUrl = (hash: string): string => {
-    const settings = getSettings()
-
-    return `${settings.endpoints.restEndpoint}/ibc/apps/transfer/v1/denom_traces/${hash}`;
-}
-
-export const getIBCTraces = async (): Promise<DenomTrace[]> => {
-    const cached = getFromLocalStorage(TRACES_CACHE_KEY);
-    if (cached) {
-        return JSON.parse(cached);
-    }
-
-    try {
-        const resp = await fetch(getDenomTracesUrl(DEFAULT_LIMIT));
-        if (resp.status !== 200) {
-            console.error("failed to fetch denom traces. status: ", resp.status);
-            return [];
-        }
-
-        const responseJson =  await resp.json();
-        if (!responseJson.denom_traces) {
-            return [];
-        }
-
-        setInLocalStorage(TRACES_CACHE_KEY, JSON.stringify(responseJson.denom_traces), TRACES_CACHE_TTL);
-
-        return responseJson.denom_traces;
-    } catch (e) {
-        console.error("[IBC] failed to fetch denom traces", e);
-        return [];
-    }
-}
-
-const createHashTraceCacheKey = (hash: string): string => {
-    return `${TRACES_CACHE_KEY}:${hash}`
-}
-
-export const getHashIBCTrace = async (hash: string): Promise<DenomTrace|undefined> => {
-    const cacheKey = createHashTraceCacheKey(hash);
-    const cached = getFromLocalStorage(cacheKey);
-    if (cached) {
-        return JSON.parse(cached);
-    }
-
-    try {
-        const resp = await fetch(getHashDenomTracesUrl(hash));
-        if (resp.status !== 200) {
-            console.error("failed to fetch hash denom trace. status: ", resp.status);
-            return;
-        }
-
-        const responseJson =  await resp.json();
-        if (!responseJson.denom_trace) {
-            return;
-        }
-
-        setInLocalStorage(cacheKey, JSON.stringify(responseJson.denom_trace), HASH_TRACE_CACHE_TTL);
-
-        return responseJson.denom_trace;
-    } catch (e) {
-        console.error("[IBC] failed to fetch denom traces", e);
-    }
-
-    return;
-}
+export const getHashIBCTrace = (hash: string): Promise<DenomTrace|undefined> => hashTraceResolver(hash);
 
 const getChannelIdUrl = (channelId: string, portId: string) => {
     const settings = getSettings()

@@ -36,7 +36,16 @@ env:
   DEPLOY_REPO: vibast-solutions/vibast-deploy
 
 jobs:
+  # Never publish or deploy on red checks: the check workflows are reused here
+  # and build-push waits for them.
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  tests:
+    uses: ./.github/workflows/tests.yml
+
   build-push:
+    needs: [ci, tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
