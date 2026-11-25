@@ -5,9 +5,10 @@ on:
     branches: [main-v2, develop]
   pull_request:
     branches: [main-v2, develop]
+  workflow_call:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: checks-ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

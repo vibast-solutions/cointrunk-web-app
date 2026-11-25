@@ -63,7 +63,7 @@ export function PayRespectModal({isOpen, onClose, publisher, onSuccess}: PayResp
     const microAmount = useMemo(() => {
         const bze = new BigNumber(amount || 0);
         if (bze.isNaN() || bze.lte(0)) return '';
-        return bze.multipliedBy(1_000_000).integerValue(BigNumber.ROUND_FLOOR).toString();
+        return bze.multipliedBy(1_000_000).integerValue(BigNumber.ROUND_FLOOR).toFixed(0);
     }, [amount]);
 
     const taxRate = useMemo(() => {
