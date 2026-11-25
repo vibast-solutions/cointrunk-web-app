@@ -23,6 +23,11 @@ describe("calculateTokenFeeAmount", () => {
         expect(calculateTokenFeeAmount(new BigNumber(1001), "0.01", "0.333").toFixed(0)).toBe("2001");
     });
 
+    it("rounds up once so a small amount is not under-paid", () => {
+        // 1.2 * 1.5 * 2 = 3.6 -> 4 (flooring 1.8 first would give 1 * 2 = 2... then 2, below the chain's ceil)
+        expect(calculateTokenFeeAmount(new BigNumber("1.2"), "0.0001", "1").toFixed(0)).toBe("4");
+    });
+
     it("keeps the minimum that lets the chain capture the swap fee", () => {
         expect(calculateTokenFeeAmount(new BigNumber(3), "0.01", "0.5").toFixed(0)).toBe("100");
     });

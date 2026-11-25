@@ -19,15 +19,33 @@ const setup = (resp: {status: number; body?: unknown} | "throw") => {
 describe("createDenomConfigQuery", () => {
     it("reads gas_surcharge from a 200 and caches it", async () => {
         const {query, fetch} = setup({status: 200, body: {config: {community_pool: "", transfer_fee: "0.000000000000000000", gas_surcharge: "0.500000000000000000"}}});
-        expect(await query(FACTORY)).toEqual({gasSurcharge: "0.500000000000000000"});
+        expect(await query(FACTORY)).toEqual({gasSurcharge: "0.5"});
         await query(FACTORY);
         expect(fetch).toHaveBeenCalledTimes(1);
         expect(fetch.mock.calls[0][0]).toBe("https://rest.test/bze/tokenfactory/denom_config?denom=factory%2Fbze1abc%2Ftoken");
     });
 
-    it("returns zero on 501", async () => {
-        const {query} = setup({status: 501});
+    it("returns zero on 501 and caches it so the node is not re-queried", async () => {
+        const {query, fetch} = setup({status: 501});
         expect(await query(FACTORY)).toEqual({gasSurcharge: "0"});
+        expect(await query(FACTORY)).toEqual({gasSurcharge: "0"});
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not cache a network error", async () => {
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        const {query, fetch} = setup("throw");
+        await query(FACTORY);
+        await query(FACTORY);
+        expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it.each([
+        ["-1", "0"], ["abc", "0"], [undefined, "0"], ["0x10", "0"], ["", "0"],
+        ["99999999999999999999999999", "2"], ["2.5", "2"], ["0.5", "0.5"], ["2", "2"],
+    ])("parses gas_surcharge %s as %s", async (raw, expected) => {
+        const {query} = setup({status: 200, body: {config: {gas_surcharge: raw}}});
+        expect(await query(FACTORY)).toEqual({gasSurcharge: expected});
     });
 
     it("returns zero on network error", async () => {

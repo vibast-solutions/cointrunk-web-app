@@ -25,7 +25,7 @@ interface IbcHop {
  * Maps the ibc-go v10 `denom` ({base, trace: [{port_id, channel_id}]}) to the
  * legacy {path, base_denom} shape used across the app. The hop on this chain's side comes first.
  */
-export const denomTraceFromV10 = (denom: {base: string; trace?: IbcHop[]}): DenomTrace => ({
+const denomTraceFromV10 = (denom: {base: string; trace?: IbcHop[]}): DenomTrace => ({
     base_denom: denom.base,
     path: (denom.trace ?? []).map(h => `${h.port_id}/${h.channel_id}`).join("/"),
 });
