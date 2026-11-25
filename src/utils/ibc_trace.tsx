@@ -5,7 +5,7 @@ export interface CacheStore {
     set(key: string, value: string, ttlSeconds: number): void;
 }
 
-export type FetchFn = (url: string) => Promise<{status: number; json(): Promise<any>}>;
+export type FetchFn = (url: string) => Promise<{status: number; json(): Promise<unknown>}>;
 
 export interface HashTraceDeps {
     fetch: FetchFn;
@@ -40,7 +40,7 @@ export const createHashTraceResolver = (deps: HashTraceDeps) => {
         try {
             const resp = await deps.fetch(`${deps.restEndpoint()}/ibc/apps/transfer/v1/denoms/${hash}`);
             if (resp.status === 200) {
-                const json = await resp.json();
+                const json = await resp.json() as {denom?: {base: string; trace?: IbcHop[]}};
                 return json?.denom?.base ? denomTraceFromV10(json.denom) : null;
             }
             if (resp.status === 404) {
@@ -60,7 +60,7 @@ export const createHashTraceResolver = (deps: HashTraceDeps) => {
                 console.error("failed to fetch hash denom trace. status: ", resp.status);
                 return undefined;
             }
-            const json = await resp.json();
+            const json = await resp.json() as {denom_trace?: DenomTrace};
             return json?.denom_trace || undefined;
         } catch (e) {
             console.error("[IBC] failed to fetch denom traces", e);

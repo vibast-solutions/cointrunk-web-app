@@ -35,9 +35,9 @@ export const createDenomConfigQuery = (deps: DenomConfigDeps) => async (denom: s
         if (resp.status !== 200) {
             return ZERO_CONFIG;
         }
-        const json = await resp.json();
+        const json = await resp.json() as {config?: {gas_surcharge?: string}};
         const surcharge = Number(json?.config?.gas_surcharge);
-        const config: DenomConfig = {gasSurcharge: Number.isFinite(surcharge) && surcharge > 0 ? String(json.config.gas_surcharge) : "0"};
+        const config: DenomConfig = {gasSurcharge: Number.isFinite(surcharge) && surcharge > 0 ? String(json.config?.gas_surcharge) : "0"};
         deps.cache.set(cacheKey, JSON.stringify(config), DENOM_CONFIG_CACHE_TTL);
 
         return config;
